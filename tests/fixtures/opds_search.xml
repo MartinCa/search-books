@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed
+  xmlns="http://www.w3.org/2005/Atom"
+  xmlns:dcterms="http://purl.org/dc/terms/"
+  xmlns:opds="http://opds-spec.org/2010/catalog"
+>
+  <id>tag:calibre-web:search</id>
+  <title>Search</title>
+  <entry>
+    <title>Wizard's First Rule</title>
+    <id>urn:uuid:12</id>
+    <dcterms:issued>1994-08-15</dcterms:issued>
+    <dcterms:series>Sword of Truth</dcterms:series>
+    <author><name>Terry Goodkind</name></author>
+    <link
+      rel="http://opds-spec.org/image"
+      href="/opds/cover/12"
+      type="image/jpeg"
+    />
+    <link
+      rel="http://opds-spec.org/acquisition"
+      href="/opds/download/12/epub/"
+      type="application/epub+zip"
+    />
+    <link
+      rel="http://opds-spec.org/acquisition"
+      href="/opds/download/12/mobi/"
+      type="application/x-mobipocket-ebook"
+    />
+  </entry>
+  <entry>
+    <title>Stone of Tears</title>
+    <id>urn:uuid:13</id>
+    <author><name>Terry Goodkind</name></author>
+    <author><name>Somebody Else</name></author>
+    <link
+      rel="http://opds-spec.org/acquisition"
+      href="/opds/download/13/epub/"
+      type="application/epub+zip"
+    />
+  </entry>
+</feed>

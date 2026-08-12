@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>search-books</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='26' font-size='26'>&#128218;</text></svg>"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>search-books</h1>
+      <form id="search-form" role="search">
+        <input
+          id="query"
+          name="q"
+          type="search"
+          placeholder="Title, author, series&hellip;"
+          value="{{ query }}"
+          autocomplete="off"
+          autofocus
+          required
+        />
+        <button type="submit">Search</button>
+        {% if shelfmark_configured %}
+        <a id="shelfmark-link" class="shelfmark" href="#" target="_blank" rel="noopener" hidden>
+          Search in Shelfmark &rarr;
+        </a>
+        {% endif %}
+      </form>
+    </header>
+
+    <main>
+      {% if not sources_configured %}
+      <p class="notice">
+        No sources are configured. Set <code>AUDIOBOOKSHELF_URL</code> and/or
+        <code>CALIBRE_URL</code> and restart.
+      </p>
+      {% endif %}
+      <div id="results" class="columns" aria-live="polite"></div>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

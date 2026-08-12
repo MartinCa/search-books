@@ -1,0 +1,7 @@
+{
+  "libraries": [
+    { "id": "lib_books", "name": "Audiobooks", "mediaType": "book" },
+    { "id": "lib_books_2", "name": "Kids", "mediaType": "book" },
+    { "id": "lib_pods", "name": "Podcasts", "mediaType": "podcast" }
+  ]
+}

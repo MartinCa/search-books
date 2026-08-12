@@ -1,0 +1,20 @@
+{
+  "12": {
+    "title": "Wizard's First Rule",
+    "authors": ["Terry Goodkind"],
+    "series": "Sword of Truth",
+    "series_index": 1.0,
+    "formats": ["epub", "mobi"],
+    "pubdate": "1994-08-15T04:00:00+00:00",
+    "identifiers": { "isbn": "9780812548051" }
+  },
+  "13": {
+    "title": "Stone of Tears",
+    "authors": ["Terry Goodkind"],
+    "series": "Sword of Truth",
+    "series_index": 2.5,
+    "formats": ["epub"],
+    "pubdate": null,
+    "identifiers": {}
+  }
+}

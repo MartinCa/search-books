@@ -1,0 +1,55 @@
+# Example deployment. Copy, edit the values, and `docker compose up -d`.
+#
+# There is deliberately no authentication -- put this behind whatever auth proxy you
+# already run (Authelia, Authentik, Caddy forward-auth, Tailscale, ...).
+
+services:
+  search-books:
+    image: ghcr.io/martinca/search-books:latest
+    # To build from a checkout instead of pulling, comment out `image` and use:
+    # build: .
+    container_name: search-books
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # --- Audiobookshelf -------------------------------------------------
+      AUDIOBOOKSHELF_URL: "https://abs.example.com"
+      AUDIOBOOKSHELF_TOKEN: "${AUDIOBOOKSHELF_TOKEN:?set this in a .env file}"
+      # Restrict to specific libraries (comma separated). Default: every library.
+      # AUDIOBOOKSHELF_LIBRARY_IDS: "lib_abc123,lib_def456"
+      # AUDIOBOOKSHELF_INCLUDE_PODCASTS: "false"
+
+      # --- Calibre --------------------------------------------------------
+      # "content-server" talks to calibre-server's JSON API and gives the richest
+      # metadata. Use "calibre-web" to query Calibre-Web's OPDS feed instead.
+      CALIBRE_BACKEND: "content-server"
+      CALIBRE_URL: "http://calibre:8080"
+      # CALIBRE_USERNAME: "calibre"
+      # CALIBRE_PASSWORD: "${CALIBRE_PASSWORD}"
+      # CALIBRE_LIBRARY_ID: "Books"
+
+      # --- Shelfmark ------------------------------------------------------
+      SHELFMARK_URL: "http://shelfmark:8084"
+      # combined | ebook | audiobook
+      SHELFMARK_CONTENT_TYPE: "combined"
+
+      # --- Server ---------------------------------------------------------
+      SEARCH_LIMIT: "25"
+      REQUEST_TIMEOUT: "10"
+      # Set to "false" only if your internal services use self-signed certificates.
+      VERIFY_TLS: "true"
+      LOG_LEVEL: "INFO"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8080/healthz', timeout=3).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+    # If Audiobookshelf, Calibre and Shelfmark already run in Docker, join their
+    # network and address them by container name as shown above.
+    # networks:
+    #   - books
+# networks:
+#   books:
+#     external: true

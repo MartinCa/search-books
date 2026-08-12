@@ -1,0 +1,37 @@
+{
+  "book": [
+    {
+      "libraryItem": {
+        "id": "li_8gch9ve09orgn4fdz8",
+        "libraryId": "lib_books",
+        "mediaType": "book",
+        "media": {
+          "metadata": {
+            "title": "Wizards First Rule",
+            "subtitle": null,
+            "authors": [{ "id": "aut_z3leimgybl7uf3y4ab", "name": "Terry Goodkind" }],
+            "narrators": ["Sam Tsoutsouvas"],
+            "series": [{ "id": "ser_cabkj4jeu8be3rap4g", "name": "Sword of Truth", "sequence": "1" }],
+            "publishedYear": "2008",
+            "publisher": "Brilliance Audio",
+            "isbn": null,
+            "asin": "B002V0QK4C",
+            "authorName": "Terry Goodkind",
+            "narratorName": "Sam Tsoutsouvas",
+            "seriesName": "Sword of Truth"
+          },
+          "coverPath": "/audiobooks/Terry Goodkind/Wizards First Rule/cover.jpg",
+          "audioFiles": [
+            { "index": 1, "metadata": { "ext": ".mp3", "filename": "part01.mp3" } },
+            { "index": 2, "metadata": { "ext": ".mp3", "filename": "part02.mp3" } }
+          ]
+        }
+      },
+      "matchKey": "title",
+      "matchText": "Wizards First Rule"
+    }
+  ],
+  "tags": [],
+  "authors": [],
+  "series": []
+}
