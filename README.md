@@ -27,6 +27,20 @@ Then open <http://localhost:8080>.
 
 A ready-to-edit [`docker-compose.yml`](docker-compose.yml) is included.
 
+### Image tags
+
+Images are published to GHCR when a GitHub release is published, for `linux/amd64`
+and `linux/arm64`:
+
+| Tag | Moves | Use it when |
+| --- | --- | --- |
+| `latest` | every non-prerelease release | you want the newest version |
+| `1.2` | patch releases within that minor | you want fixes but no feature jumps |
+| `1.2.3` | never | you want to pin exactly |
+| `sha-<commit>` | never | you need to pin to one commit |
+
+Prereleases (`v1.2.3-rc.1`) publish under their own version tag and do not move `latest`.
+
 ## Configuration
 
 Everything is configured with environment variables. A source with no URL set is simply
