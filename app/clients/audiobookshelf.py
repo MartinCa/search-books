@@ -12,7 +12,12 @@ from typing import Any
 
 import httpx
 
-from app.clients.base import SearchClient, SourceError, describe_http_error
+from app.clients.base import (
+    SearchClient,
+    SourceError,
+    describe_http_error,
+    format_series_index,
+)
 from app.config import Settings
 from app.models import BookResult
 
@@ -111,7 +116,7 @@ class AudiobookshelfClient(SearchClient):
             subtitle=metadata.get("subtitle"),
             authors=authors,
             series=series_name,
-            series_index=str(series_index) if series_index else None,
+            series_index=format_series_index(series_index),
             year=str(published) if published else None,
             formats=sorted(
                 {

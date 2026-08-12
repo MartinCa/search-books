@@ -10,7 +10,7 @@ from enum import StrEnum
 from typing import Annotated
 
 from pydantic import BeforeValidator, Field, HttpUrl, TypeAdapter, field_validator
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class CalibreBackend(StrEnum):
@@ -37,7 +37,10 @@ def _split_csv(value: object) -> object:
     return value
 
 
-CsvList = Annotated[list[str], BeforeValidator(_split_csv)]
+# NoDecode is essential: without it pydantic-settings JSON-decodes env values for
+# list-typed fields before validation runs, so a plain "a,b" raises SettingsError and the
+# validator below never sees it.
+CsvList = Annotated[list[str], NoDecode, BeforeValidator(_split_csv)]
 
 _URL_ADAPTER = TypeAdapter(HttpUrl)
 
@@ -64,12 +67,11 @@ class Settings(BaseSettings):
     shelfmark_url: str | None = None
     shelfmark_content_type: ShelfmarkContentType = ShelfmarkContentType.COMBINED
 
-    # Server
+    # Server. HOST and PORT are deliberately absent: they are read by the container's
+    # entrypoint when it launches uvicorn, not by the application itself.
     search_limit: int = Field(default=25, ge=1, le=200)
     request_timeout: float = Field(default=10.0, gt=0)
     verify_tls: bool = True
-    host: str = "0.0.0.0"
-    port: int = 8080
     log_level: str = "INFO"
 
     @field_validator("audiobookshelf_url", "calibre_url", "shelfmark_url", mode="after")

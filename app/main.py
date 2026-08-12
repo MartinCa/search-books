@@ -87,7 +87,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return Response(
             content=upstream.content,
             media_type=upstream.headers.get("content-type", "image/jpeg"),
-            headers={"Cache-Control": "public, max-age=86400"},
+            # "private": these are covers from a private library, so only the browser
+            # that asked for them should cache them -- never a shared proxy.
+            headers={"Cache-Control": "private, max-age=86400"},
         )
 
     return app

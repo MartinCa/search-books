@@ -1,42 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feed
-  xmlns="http://www.w3.org/2005/Atom"
-  xmlns:dcterms="http://purl.org/dc/terms/"
-  xmlns:opds="http://opds-spec.org/2010/catalog"
->
-  <id>tag:calibre-web:search</id>
-  <title>Search</title>
+<!--
+  Shaped after Calibre-Web's own cps/templates/feed.xml: uuid entry ids, series only
+  inside the xhtml content block, <published> for the date, and acquisition links that
+  carry the format in both a title attribute and the path.
+-->
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/terms/" xmlns:dcterms="http://purl.org/dc/terms/">
+  <id>urn:uuid:2853dacf-ed79-42f5-8e8a-a7bb3d1ae6a2</id>
+  <updated>2026-08-12T10:00:00+00:00</updated>
+  <title>Calibre-Web</title>
   <entry>
     <title>Wizard's First Rule</title>
-    <id>urn:uuid:12</id>
-    <dcterms:issued>1994-08-15</dcterms:issued>
-    <dcterms:series>Sword of Truth</dcterms:series>
-    <author><name>Terry Goodkind</name></author>
-    <link
-      rel="http://opds-spec.org/image"
-      href="/opds/cover/12"
-      type="image/jpeg"
-    />
-    <link
-      rel="http://opds-spec.org/acquisition"
-      href="/opds/download/12/epub/"
-      type="application/epub+zip"
-    />
-    <link
-      rel="http://opds-spec.org/acquisition"
-      href="/opds/download/12/mobi/"
-      type="application/x-mobipocket-ebook"
-    />
+    <id>urn:uuid:9f8e7d6c-5b4a-3210-9876-543210fedcba</id>
+    <updated>1994-08-15T00:00:00+00:00</updated>
+    <author>
+      <name>Terry Goodkind</name>
+    </author>
+    <publisher>
+      <name>Tor Books</name>
+    </publisher>
+    <published>1994-08-15T00:00:00+00:00</published>
+    <dcterms:language>eng</dcterms:language>
+    <category scheme="http://www.bisg.org/standards/bisac_subject/index.html" term="Fantasy" label="Fantasy"/>
+    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">
+    TAGS: Fantasy<br/>
+    SERIES: Sword of Truth [1.00]<br/>
+    <p>The masterpiece that started the Sword of Truth.</p>
+    </div></content>
+    <link type="image/jpeg" href="/opds/cover/12" rel="http://opds-spec.org/image"/>
+    <link type="image/jpeg" href="/opds/cover/12" rel="http://opds-spec.org/image/thumbnail"/>
+    <link rel="http://opds-spec.org/acquisition" href="/opds/download/12/epub/" length="812345" title="EPUB" mtime="1994-08-15T00:00:00+00:00" type="application/epub+zip"/>
+    <link rel="http://opds-spec.org/acquisition" href="/opds/download/12/mobi/" length="912345" title="MOBI" mtime="1994-08-15T00:00:00+00:00" type="application/x-mobipocket-ebook"/>
   </entry>
+  <!-- A metadata-only book: no format files, so no acquisition link and no cover. -->
   <entry>
     <title>Stone of Tears</title>
-    <id>urn:uuid:13</id>
-    <author><name>Terry Goodkind</name></author>
-    <author><name>Somebody Else</name></author>
-    <link
-      rel="http://opds-spec.org/acquisition"
-      href="/opds/download/13/epub/"
-      type="application/epub+zip"
-    />
+    <id>urn:uuid:11112222-3333-4444-5555-666677778888</id>
+    <updated>2026-08-12T10:00:00+00:00</updated>
+    <author>
+      <name>Terry Goodkind</name>
+    </author>
+    <author>
+      <name>Somebody Else</name>
+    </author>
+    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">
+    SERIES: Sword of Truth [2.50]<br/>
+    </div></content>
   </entry>
 </feed>

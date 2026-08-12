@@ -10,7 +10,7 @@ coverage.xml
 htmlcov
 tests
 docker-compose.yml
-README.md
+docs
 .env
 .gitignore
 .dockerignore

@@ -67,6 +67,61 @@ def test_defaults() -> None:
     assert settings.search_limit == 25
     assert settings.request_timeout == 10.0
     assert settings.verify_tls is True
-    assert settings.port == 8080
     assert settings.shelfmark_content_type is ShelfmarkContentType.COMBINED
     assert settings.audiobookshelf_include_podcasts is False
+
+
+# Everything below loads settings the way the container does -- through the environment,
+# not the constructor. Constructor-only tests bypass pydantic-settings' env source, which
+# is where env-specific parsing (and its failure modes) actually live.
+
+
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("lib_a,lib_b", ["lib_a", "lib_b"]),
+        ("lib_a, lib_b ,, lib_c", ["lib_a", "lib_b", "lib_c"]),
+        ("lib_only", ["lib_only"]),
+        ("", []),
+        ("   ", []),
+    ],
+)
+def test_library_ids_load_from_the_environment(
+    monkeypatch: pytest.MonkeyPatch, raw: str, expected: list[str]
+) -> None:
+    monkeypatch.setenv("AUDIOBOOKSHELF_LIBRARY_IDS", raw)
+
+    assert Settings().audiobookshelf_library_ids == expected
+
+
+def test_full_configuration_loads_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("AUDIOBOOKSHELF_URL", "https://abs.example.com/")
+    monkeypatch.setenv("AUDIOBOOKSHELF_TOKEN", "token")
+    monkeypatch.setenv("AUDIOBOOKSHELF_LIBRARY_IDS", "lib_a,lib_b")
+    monkeypatch.setenv("AUDIOBOOKSHELF_INCLUDE_PODCASTS", "true")
+    monkeypatch.setenv("CALIBRE_BACKEND", "calibre-web")
+    monkeypatch.setenv("CALIBRE_URL", "https://cw.example.com")
+    monkeypatch.setenv("SHELFMARK_URL", "https://shelfmark.example.com")
+    monkeypatch.setenv("SHELFMARK_CONTENT_TYPE", "ebook")
+    monkeypatch.setenv("SEARCH_LIMIT", "50")
+    monkeypatch.setenv("VERIFY_TLS", "false")
+
+    settings = Settings()
+
+    assert settings.audiobookshelf_url == "https://abs.example.com"
+    assert settings.audiobookshelf_library_ids == ["lib_a", "lib_b"]
+    assert settings.audiobookshelf_include_podcasts is True
+    assert settings.resolved_calibre_backend is CalibreBackend.CALIBRE_WEB
+    assert settings.shelfmark_content_type is ShelfmarkContentType.EBOOK
+    assert settings.search_limit == 50
+    assert settings.verify_tls is False
+
+
+def test_host_and_port_are_not_application_settings(monkeypatch: pytest.MonkeyPatch) -> None:
+    """They belong to the container entrypoint; the app must ignore them, not choke."""
+    monkeypatch.setenv("HOST", "127.0.0.1")
+    monkeypatch.setenv("PORT", "9000")
+
+    settings = Settings()
+
+    assert not hasattr(settings, "port")

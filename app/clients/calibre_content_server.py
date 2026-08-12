@@ -10,7 +10,12 @@ from typing import Any
 
 import httpx
 
-from app.clients.base import SearchClient, SourceError, describe_http_error
+from app.clients.base import (
+    SearchClient,
+    SourceError,
+    describe_http_error,
+    format_series_index,
+)
 from app.config import Settings
 from app.models import BookResult
 
@@ -63,11 +68,6 @@ class CalibreContentServerClient(SearchClient):
         ]
 
     def _to_result(self, book_id: str, metadata: dict[str, Any]) -> BookResult:
-        series_index = metadata.get("series_index")
-        # Calibre stores series_index as a float; 1.0 reads better as "1".
-        if isinstance(series_index, float) and series_index.is_integer():
-            series_index = int(series_index)
-
         pubdate = metadata.get("pubdate")
         year = str(pubdate)[:4] if pubdate else None
 
@@ -78,7 +78,7 @@ class CalibreContentServerClient(SearchClient):
             title=metadata.get("title") or "Untitled",
             authors=list(metadata.get("authors") or []),
             series=metadata.get("series"),
-            series_index=str(series_index) if series_index is not None else None,
+            series_index=format_series_index(metadata.get("series_index")),
             year=year,
             formats=sorted(fmt.upper() for fmt in metadata.get("formats") or []),
             identifiers={

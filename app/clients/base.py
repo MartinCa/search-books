@@ -31,6 +31,17 @@ class SearchClient(abc.ABC):
         """Fetch a cover image for one result, authenticated as this backend requires."""
 
 
+def format_series_index(value: object) -> str | None:
+    """Render a series position for display: 1, 1.0 and "1.00" all become "1"."""
+    if value is None or value == "":
+        return None
+    try:
+        number = float(value)  # type: ignore[arg-type]
+    except TypeError, ValueError:
+        return str(value)
+    return str(int(number)) if number.is_integer() else str(number)
+
+
 def describe_http_error(exc: Exception) -> str:
     """Render an exception as a short message worth showing in the UI."""
     match exc:

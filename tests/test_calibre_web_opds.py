@@ -31,10 +31,11 @@ async def test_atom_entries_become_results(
     assert len(results) == 2
 
     first = results[0]
-    assert first.id == "12"
+    assert first.id == "12", "the id comes from the acquisition link, not the uuid entry id"
     assert first.title == "Wizard's First Rule"
     assert first.authors == ["Terry Goodkind"]
-    assert first.series == "Sword of Truth"
+    assert first.series == "Sword of Truth", "series lives in the xhtml content block"
+    assert first.series_index == "1"
     assert first.year == "1994"
     assert first.formats == ["EPUB", "MOBI"], "one format per acquisition link"
     assert first.cover_url == "/api/cover/calibre/12"
@@ -42,8 +43,74 @@ async def test_atom_entries_become_results(
 
     second = results[1]
     assert second.authors == ["Terry Goodkind", "Somebody Else"]
+    assert second.series == "Sword of Truth"
+    assert second.series_index == "2.5"
     assert second.cover_url is None, "no image link means no cover"
     assert second.year is None
+
+
+@respx.mock
+async def test_book_without_acquisition_links_gets_no_invented_id(
+    http_client: httpx.AsyncClient, calibre_web_settings: Settings
+) -> None:
+    """A uuid entry id must never be mined for digits: that links to a different book."""
+    respx.get("https://cw.example.com/opds/search").mock(
+        return_value=httpx.Response(200, content=load_bytes("opds_search.xml"))
+    )
+
+    results = await CalibreWebOpdsClient(http_client, calibre_web_settings).search("x", 25)
+
+    formatless = results[1]
+    assert formatless.id == ""
+    assert formatless.item_url is None
+    assert formatless.cover_url is None
+    assert formatless.title == "Stone of Tears", "the row is still shown, just not linked"
+
+
+@respx.mock
+async def test_format_falls_back_to_the_href_when_the_link_has_no_title(
+    http_client: httpx.AsyncClient, calibre_web_settings: Settings
+) -> None:
+    feed = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <entry>
+        <title>Untitled Format</title>
+        <id>urn:uuid:abc</id>
+        <link rel="http://opds-spec.org/acquisition" href="/opds/download/7/azw3/"/>
+      </entry>
+    </feed>"""
+    respx.get("https://cw.example.com/opds/search").mock(
+        return_value=httpx.Response(200, content=feed)
+    )
+
+    results = await CalibreWebOpdsClient(http_client, calibre_web_settings).search("x", 25)
+
+    assert results[0].formats == ["AZW3"]
+    assert results[0].id == "7"
+
+
+@respx.mock
+async def test_entry_without_series_content_has_no_series(
+    http_client: httpx.AsyncClient, calibre_web_settings: Settings
+) -> None:
+    feed = b"""<?xml version="1.0" encoding="UTF-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+      <entry>
+        <title>Standalone</title>
+        <id>urn:uuid:abc</id>
+        <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">
+        TAGS: Fiction<br/><p>No series here.</p>
+        </div></content>
+      </entry>
+    </feed>"""
+    respx.get("https://cw.example.com/opds/search").mock(
+        return_value=httpx.Response(200, content=feed)
+    )
+
+    results = await CalibreWebOpdsClient(http_client, calibre_web_settings).search("x", 25)
+
+    assert results[0].series is None
+    assert results[0].series_index is None
 
 
 @respx.mock

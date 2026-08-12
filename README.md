@@ -38,7 +38,7 @@ reported as *not configured* in the UI instead of erroring.
 | --- | --- | --- |
 | `AUDIOBOOKSHELF_URL` | — | Base URL, e.g. `https://abs.example.com`. Unset disables the source. |
 | `AUDIOBOOKSHELF_TOKEN` | — | API token. Log in as admin → *Settings → Users* → your account. |
-| `AUDIOBOOKSHELF_LIBRARY_IDS` | — | Comma-separated library IDs. Unset means *all* libraries the token can see. |
+| `AUDIOBOOKSHELF_LIBRARY_IDS` | — | Comma-separated library IDs, e.g. `lib_abc,lib_def`. Unset means *all* libraries the token can see, discovered once at first search — add a library later and you need a restart. |
 | `AUDIOBOOKSHELF_INCLUDE_PODCASTS` | `false` | Also search podcast libraries. |
 
 ### Calibre
@@ -75,9 +75,9 @@ on load and runs automatically.
 | `SEARCH_LIMIT` | `25` | Max results per source. |
 | `REQUEST_TIMEOUT` | `10.0` | Per-request timeout in seconds. |
 | `VERIFY_TLS` | `true` | Set `false` for internal self-signed certificates. |
-| `HOST` | `0.0.0.0` | Bind address. |
-| `PORT` | `8080` | Bind port. |
 | `LOG_LEVEL` | `INFO` | Python log level. |
+| `HOST` | `0.0.0.0` | Bind address. Read by the container entrypoint, not the app — running uvicorn yourself means passing `--host`. |
+| `PORT` | `8080` | Bind port. Same caveat as `HOST`. |
 
 ## HTTP API
 

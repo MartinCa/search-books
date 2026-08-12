@@ -1,7 +1,14 @@
 """Calibre-Web client, via its OPDS catalog.
 
 Calibre-Web has no JSON search API, but ``GET /opds/search?query=`` returns an Atom feed
-with one ``<entry>`` per book, acquisition links per format and a cover link.
+with one ``<entry>`` per book. The shapes handled here follow Calibre-Web's own
+``cps/templates/feed.xml``:
+
+* ``<id>`` is ``urn:uuid:<uuid>`` -- it does **not** carry the Calibre book id, so the id
+  is recovered from an acquisition link (``/opds/download/{book_id}/{format}/``) instead.
+* series is not exposed as an element; the template renders it into the xhtml ``<content>``
+  block as ``SERIES: <name> [<index>]``.
+* dates come from ``<published>``.
 """
 
 from __future__ import annotations
@@ -12,15 +19,21 @@ from xml.etree import ElementTree
 
 import httpx
 
-from app.clients.base import SearchClient, SourceError, describe_http_error
+from app.clients.base import (
+    SearchClient,
+    SourceError,
+    describe_http_error,
+    format_series_index,
+)
 from app.config import Settings
 from app.models import BookResult
 
 ATOM = "{http://www.w3.org/2005/Atom}"
 DC = "{http://purl.org/dc/terms/}"
 ACQUISITION_REL = "http://opds-spec.org/acquisition"
+COVER_RELS = frozenset({"http://opds-spec.org/image", "http://opds-spec.org/cover"})
 
-_ID_PATTERN = re.compile(r"(\d+)")
+_SERIES_PATTERN = re.compile(r"SERIES:\s*(?P<name>.+?)\s*\[(?P<index>[\d.]+)\]")
 
 
 class CalibreWebOpdsClient(SearchClient):
@@ -51,20 +64,25 @@ class CalibreWebOpdsClient(SearchClient):
 
     def _to_result(self, entry: ElementTree.Element) -> BookResult:
         formats: list[str] = []
-        cover_url: str | None = None
+        book_id = ""
+        has_cover = False
 
         for link in entry.findall(f"{ATOM}link"):
             rel = link.get("rel") or ""
-            href = link.get("href") or ""
-            if rel.startswith(ACQUISITION_REL):
-                # /opds/download/{book_id}/{format}/ -- the path carries the format.
-                parts = [part for part in href.split("/") if part]
-                if parts:
-                    formats.append(parts[-1].upper())
-            elif rel in {"http://opds-spec.org/image", "http://opds-spec.org/cover"}:
-                cover_url = href
+            if rel in COVER_RELS:
+                has_cover = True
+                continue
+            if not rel.startswith(ACQUISITION_REL):
+                continue
 
-        book_id = self._entry_id(entry)
+            # /opds/download/{book_id}/{format}/
+            parts = [part for part in (link.get("href") or "").split("/") if part]
+            # The link's title is the format name already ("EPUB"); the path is the fallback.
+            formats.append((link.get("title") or (parts[-1] if parts else "")).upper())
+            if not book_id and len(parts) >= 2 and parts[-2].isdigit():
+                book_id = parts[-2]
+
+        series, series_index = self._series(entry)
         published = entry.findtext(f"{DC}issued") or entry.findtext(f"{ATOM}published")
 
         return BookResult(
@@ -75,25 +93,27 @@ class CalibreWebOpdsClient(SearchClient):
                 for author in entry.findall(f"{ATOM}author")
                 if (name := author.findtext(f"{ATOM}name"))
             ],
-            series=entry.findtext(f"{DC}series"),
+            series=series,
+            series_index=series_index,
             year=published[:4] if published else None,
-            formats=sorted(set(formats)),
-            cover_url=f"/api/cover/{self.key}/{book_id}" if cover_url else None,
+            formats=sorted({fmt for fmt in formats if fmt}),
+            # Without a book id there is nothing to link to: the entry id is a UUID, and
+            # guessing an id from it would silently point at some other book.
+            cover_url=f"/api/cover/{self.key}/{book_id}" if has_cover and book_id else None,
             item_url=f"{self._base_url}/book/{book_id}" if book_id else None,
         )
 
     @staticmethod
-    def _entry_id(entry: ElementTree.Element) -> str:
-        """Pull the numeric Calibre id out of the entry, falling back to the raw id."""
-        raw = entry.findtext(f"{ATOM}id") or ""
-        for link in entry.findall(f"{ATOM}link"):
-            if (link.get("rel") or "").startswith(ACQUISITION_REL):
-                parts = [part for part in (link.get("href") or "").split("/") if part]
-                # /opds/download/{book_id}/{format}/
-                if len(parts) >= 2 and parts[-2].isdigit():
-                    return parts[-2]
-        match = _ID_PATTERN.search(raw)
-        return match.group(1) if match else raw.strip()
+    def _series(entry: ElementTree.Element) -> tuple[str | None, str | None]:
+        """Recover series from the xhtml content block, where the template renders it."""
+        content = entry.find(f"{ATOM}content")
+        if content is None:
+            return None, None
+
+        match = _SERIES_PATTERN.search("".join(content.itertext()))
+        if match is None:
+            return None, None
+        return match["name"], format_series_index(match["index"])
 
     async def cover(self, item_id: str) -> httpx.Response:
         return await self._get(f"{self._base_url}/opds/cover/{item_id}")
