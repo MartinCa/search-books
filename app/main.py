@@ -50,9 +50,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     async def healthz() -> dict[str, str]:
         return {"status": "ok"}
 
+    dist_index = BASE_DIR / "static" / "dist" / "index.html"
+
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request, q: str = "") -> HTMLResponse:
         """The search page. ``?q=`` prefills the box so result pages are linkable."""
+        if dist_index.exists():
+            return HTMLResponse(content=dist_index.read_text(encoding="utf-8"))
+
         return templates.TemplateResponse(
             request,
             "index.html",

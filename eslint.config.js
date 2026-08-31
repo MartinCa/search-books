@@ -1,2 +1,2 @@
 import config from "@martinrun/frontend-config/eslint";
-export default config({ ignores: ["app/**"] });
+export default config({ ignores: ["app/**", ".venv/**"] });
