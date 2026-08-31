@@ -1,3 +1,6 @@
+{% if dist_exists %}
+{{ dist_html | safe }}
+{% else %}
 <!doctype html>
 <html lang="en">
   <head>
@@ -46,3 +49,4 @@
     <script src="/static/app.js"></script>
   </body>
 </html>
+{% endif %}

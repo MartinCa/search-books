@@ -55,14 +55,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     @app.get("/", response_class=HTMLResponse)
     async def index(request: Request, q: str = "") -> HTMLResponse:
         """The search page. ``?q=`` prefills the box so result pages are linkable."""
-        if dist_index.exists():
-            return HTMLResponse(content=dist_index.read_text(encoding="utf-8"))
-
         return templates.TemplateResponse(
             request,
             "index.html",
             {
                 "query": q,
+                "dist_exists": dist_index.exists() and not q,
+                "dist_html": dist_index.read_text(encoding="utf-8") if dist_index.exists() else "",
                 "shelfmark_configured": bool(settings.shelfmark_url),
                 "sources_configured": bool(request.app.state.clients),
             },
