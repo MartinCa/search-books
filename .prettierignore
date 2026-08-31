@@ -1,0 +1,7 @@
+app/
+tests/
+docker-compose.yml
+README.md
+uv.lock
+pnpm-lock.yaml
+DESIGN.md

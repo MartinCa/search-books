@@ -10,3 +10,6 @@ htmlcov/
 dist/
 build/
 .env
+node_modules/
+app/static/dist/
+tsconfig.tsbuildinfo
