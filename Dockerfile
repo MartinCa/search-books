@@ -9,8 +9,13 @@ RUN corepack enable && corepack prepare pnpm@11.24.0 --activate
 
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# --ignore-scripts: this stage only needs the packages on disk to run `pnpm
+# build` below, never a package's own install script. Without it, lefthook's
+# `prepare` script (`lefthook install`) shells out to `git rev-parse` to find
+# the repo root - which fails outright here, since this image has no `git`
+# binary and the build context never copies `.git` in the first place.
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile --ignore-scripts
 
 COPY index.html tsconfig.json tsconfig.app.json* vite.config.ts components.json ./
 COPY src ./src
