@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "lint:ci": "eslint . --max-warnings 0",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "lefthook install"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +31,7 @@
     "@types/react-dom": "^19.2.5",
     "@vitejs/plugin-react": "^6.1.1",
     "eslint": "^10.9.1",
+    "lefthook": "^2.1.12",
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",

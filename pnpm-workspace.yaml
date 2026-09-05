@@ -1,3 +1,5 @@
 trustLockfile: true
 minimumReleaseAgeExclude:
   - "@martinrun/*"
+allowBuilds:
+  lefthook: true
