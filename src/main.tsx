@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "@/components/theme-provider";
 import { createQueryClient } from "@/lib/query";
 import { App } from "@/App";
-import "@/index.css";
+import "./index.css";
 
 const queryClient = createQueryClient();
 
