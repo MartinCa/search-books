@@ -2,6 +2,8 @@
   "extends": "@martinrun/frontend-config/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "noUncheckedSideEffectImports": false,
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src"]
