@@ -1,7 +1,6 @@
 {
   "extends": "@martinrun/frontend-config/tsconfig",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": { "@/*": ["./src/*"] }
   },
   "include": ["src"]
