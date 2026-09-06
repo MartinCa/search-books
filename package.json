@@ -24,7 +24,7 @@
   "packageManager": "pnpm@11.24.0",
   "type": "module",
   "devDependencies": {
-    "@martinrun/frontend-config": "0.2.1",
+    "@martinrun/frontend-config": "0.2.6",
     "@tailwindcss/vite": "4.3.3",
     "@types/node": "26.4.0",
     "@types/react": "19.2.18",
