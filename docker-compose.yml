@@ -5,7 +5,7 @@
 
 services:
   search-books:
-    image: ghcr.io/martinca/search-books:latest
+    image: ghcr.io/martinca/search-books:latest@sha256:2c3bb5a6b4a018f4cb43b0c546d67fc0e1a3c0ff830428f2d4977e65c61f9f67
     # To build from a checkout instead of pulling, comment out `image` and use:
     # build: .
     container_name: search-books
