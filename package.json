@@ -21,7 +21,7 @@
       "onFail": "download"
     }
   },
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@11.26.0",
   "type": "module",
   "devDependencies": {
     "@martinrun/frontend-config": "0.2.6",
