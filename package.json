@@ -14,14 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.3.4",
-      "onFail": "download"
-    }
-  },
-  "packageManager": "pnpm@12.3.4",
+  "packageManager": "pnpm@12.3.4+sha224.1d6081e40cea3868ca501ae51582b2b874d087b645d177f561cd351a",
   "type": "module",
   "devDependencies": {
     "@martinrun/frontend-config": "0.2.6",
