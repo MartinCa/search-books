@@ -1,3 +1,4 @@
+# Re-declared under the distinct names ts-lint/ts-format because langs/ts.yml and langs/python.yml collide on lint/format (lefthook-configs#5).
 pre-commit:
   commands:
     ts-lint:
