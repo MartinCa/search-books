@@ -1,0 +1,10 @@
+pre-commit:
+  commands:
+    ts-lint:
+      glob: "*.{ts,tsx}"
+      run: pnpm eslint --fix {staged_files} && pnpm prettier --write {staged_files}
+      stage_fixed: true
+    ts-format:
+      glob: "*.{json,css,md,js,mjs,html}"
+      run: pnpm prettier --write {staged_files}
+      stage_fixed: true
