@@ -33,6 +33,19 @@ There is no frontend test suite; the type-check in `pnpm build` covers the front
 
 Fix any reported violations or warnings rather than disabling rules or skipping checks.
 
+## Git hooks
+
+Local hooks are installed automatically by `pnpm install` (the `prepare` script runs `lefthook install` — idempotent, safe to re-run).
+
+Hooks come from the shared `MartinCa/lefthook-configs` fragments pinned at `v2.0.0` in `lefthook.yml`. `remotes:` configs merge _over_ `lefthook.yml`. The fragments are native to this repo's tooling (pnpm on the frontend, uv/ruff on the backend), and since `v2.0.0` every language fragment names its commands with a language suffix (`lint-ts`/`format-ts`, `lint-python`/`format-python`), so `langs/ts.yml` and `langs/python.yml` compose natively — there is no `lefthook-local.yml` here.
+
+- **pre-commit** — ESLint `--fix` + Prettier `--write` on staged TS/TSX (Prettier on JSON/CSS/MD), Ruff `check --fix` + `format` on staged Python, re-staging fixed files; `lefthook-shared.yml` secret-scans the staged diff with `betterleaks` (blocks the commit on a leak) and audits staged `.github/workflows/*` files with `zizmor` (blocks on a finding).
+- **commit-msg** — `commit-msg.yml` enforces Conventional Commits, e.g. `feat: ...`, `fix(api): ...`.
+
+These hooks are the **only** enforcement of the lint/format autofixes, the secret scan, and Conventional-Commits checks. CI runs `pnpm lint:ci` (ESLint with `--max-warnings 0`), `pnpm format:check`, `pnpm build`, `uv run ruff check`, `ruff format --check`, and `uv run pytest` as blocking gates, and uploads a zizmor SARIF report to code scanning — a non-blocking SARIF upload, not a merge gate. CI does not run the autofixes, `betterleaks`, or commit-msg validation itself. Do not bypass the hooks.
+
+Two hook tools must be on `PATH`: `betterleaks` (secret scan, install per its project README) and `zizmor` (workflow audit, install from zizmor.sh). If a tool is missing, `LEFTHOOK=0 git commit` skips the hooks entirely — a pragmatic escape hatch for restricted setups, not a way to dodge the gates.
+
 ## Shortcuts
 
 - `shadcn info` — what is installed, which base, where the docs are.
