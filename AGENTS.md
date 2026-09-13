@@ -37,7 +37,9 @@ Fix any reported violations or warnings rather than disabling rules or skipping 
 
 Local hooks are installed automatically by `pnpm install` (the `prepare` script runs `lefthook install` — idempotent, safe to re-run).
 
-Hooks come from the shared `MartinCa/lefthook-configs` fragments pinned at `v2.0.0` in `lefthook.yml`. `remotes:` configs merge _over_ `lefthook.yml`. The fragments are native to this repo's tooling (pnpm on the frontend, uv/ruff on the backend), and since `v2.0.0` every language fragment names its commands with a language suffix (`lint-ts`/`format-ts`, `lint-python`/`format-python`), so `langs/ts.yml` and `langs/python.yml` compose natively — there is no `lefthook-local.yml` here.
+**AI agents**: do not install the lefthook binary yourself — it is included in the OpenCode image. If `lefthook` is not on PATH, report this to the user and ask whether to install it.
+
+Hooks come from the shared `MartinCa/lefthook-configs` fragments pinned at `v2.0.1` in `lefthook.yml`. `remotes:` configs merge _over_ `lefthook.yml`. The fragments are native to this repo's tooling (pnpm on the frontend, uv/ruff on the backend), and since `v2.0.0` every language fragment names its commands with a language suffix (`lint-ts`/`format-ts`, `lint-python`/`format-python`), so `langs/ts.yml` and `langs/python.yml` compose natively — there is no `lefthook-local.yml` here.
 
 - **pre-commit** — ESLint `--fix` + Prettier `--write` on staged TS/TSX (Prettier on JSON/CSS/MD), Ruff `check --fix` + `format` on staged Python, re-staging fixed files; `lefthook-shared.yml` secret-scans the staged diff with `betterleaks` (blocks the commit on a leak) and audits staged `.github/workflows/*` files with `zizmor` (blocks on a finding).
 - **commit-msg** — `commit-msg.yml` enforces Conventional Commits, e.g. `feat: ...`, `fix(api): ...`.
