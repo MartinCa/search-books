@@ -6,4 +6,5 @@ remotes:
       - langs/ts.yml
       - langs/python.yml
       - pre-push-python.yml
+      - pre-push-ts.yml
       - commit-msg.yml

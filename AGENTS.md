@@ -26,10 +26,9 @@ frontend-kit standard; these match this repo's `package.json` and CI):
 1. `pnpm lint:ci` — ESLint with `--max-warnings 0`.
 2. `pnpm format:check` — Prettier verification (`prettier --check .`).
 3. `pnpm build` — full type-check (`tsc -b`) plus the vite build.
-4. `uv run ruff check . && uv run ruff format --check .` — backend lint and format.
-5. `uv run pytest` — backend test suite.
-
-There is no frontend test suite; the type-check in `pnpm build` covers the frontend.
+4. `pnpm test` — frontend test suite (Vitest + Testing Library; `src/App.test.tsx`).
+5. `uv run ruff check . && uv run ruff format --check .` — backend lint and format.
+6. `uv run pytest` — backend test suite.
 
 Fix any reported violations or warnings rather than disabling rules or skipping checks.
 
@@ -42,10 +41,10 @@ Local hooks are installed automatically by `pnpm install` (the `prepare` script 
 Hooks come from the shared `MartinCa/lefthook-configs` fragments pinned at `v2.1.0` in `lefthook.yml`. `remotes:` configs merge _over_ `lefthook.yml`. The fragments are native to this repo's tooling (pnpm on the frontend, uv/ruff on the backend), and since `v2.0.0` every language fragment names its commands with a language suffix (`lint-ts`/`format-ts`, `lint-python`/`format-python`), so `langs/ts.yml` and `langs/python.yml` compose natively — there is no `lefthook-local.yml` here.
 
 - **pre-commit** — ESLint `--fix` + Prettier `--write` on staged TS/TSX (Prettier on JSON/CSS/MD), Ruff `check --fix` + `format` on staged Python, re-staging fixed files; `lefthook-shared.yml` secret-scans the staged diff with `betterleaks` (blocks the commit on a leak) and audits staged `.github/workflows/*` files with `zizmor` (blocks on a finding).
-- **pre-push** — `test-python` runs `uv run pytest` on every push; a failing suite blocks the push. `test-ts` is deliberately not adopted: this repo has no `test` script and no frontend test suite (`pnpm build` type-checks the frontend instead), so the shared `pre-push-ts.yml` fragment's `pnpm test` would fail every push. Add it if a frontend test suite is ever introduced.
+- **pre-push** — `test-python` runs `uv run pytest` and `test-ts` runs `pnpm test` (Vitest) on every push, via the shared `pre-push-python.yml` and `pre-push-ts.yml` fragments; a failing suite blocks the push.
 - **commit-msg** — `commit-msg.yml` enforces Conventional Commits, e.g. `feat: ...`, `fix(api): ...`.
 
-These hooks are the **only** enforcement of the lint/format autofixes, the secret scan, and Conventional-Commits checks. CI runs `pnpm lint:ci` (ESLint with `--max-warnings 0`), `pnpm format:check`, `pnpm build`, `uv run ruff check`, `ruff format --check`, and `uv run pytest` as blocking gates, and uploads a zizmor SARIF report to code scanning — a non-blocking SARIF upload, not a merge gate. CI does not run the autofixes, `betterleaks`, or commit-msg validation itself. Do not bypass the hooks.
+These hooks are the **only** enforcement of the lint/format autofixes, the secret scan, and Conventional-Commits checks. CI runs `pnpm lint:ci` (ESLint with `--max-warnings 0`), `pnpm format:check`, `pnpm build`, `pnpm test`, `uv run ruff check`, `ruff format --check`, and `uv run pytest` as blocking gates, and uploads a zizmor SARIF report to code scanning — a non-blocking SARIF upload, not a merge gate. CI does not run the autofixes, `betterleaks`, or commit-msg validation itself. Do not bypass the hooks.
 
 Two hook tools must be on `PATH`: `betterleaks` (secret scan, install per its project README) and `zizmor` (workflow audit, install from zizmor.sh). If a tool is missing, `LEFTHOOK=0 git commit` skips the hooks entirely — a pragmatic escape hatch for restricted setups, not a way to dodge the gates.
 

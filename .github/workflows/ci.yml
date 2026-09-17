@@ -61,6 +61,9 @@ jobs:
       - name: Frontend build / typecheck
         run: pnpm build
 
+      - name: Frontend tests
+        run: pnpm test
+
   test:
     name: Tests
     runs-on: ubuntu-latest
