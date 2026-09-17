@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ExternalLink, Search as SearchIcon } from "lucide-react";
 import type { components } from "@/lib/api-types";
 import { api } from "@/lib/api";
@@ -25,6 +25,7 @@ export function App() {
     queryKey: ["search", activeQuery],
     queryFn: () => api.get<SearchResponse>("/search", { query: { q: activeQuery } }),
     enabled: activeQuery.length > 0,
+    placeholderData: keepPreviousData,
   });
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
