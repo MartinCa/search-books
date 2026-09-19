@@ -57,7 +57,7 @@ Committing `routeTree.gen.ts` ensures fresh clones have complete route types for
 IDEs and type-aware linting without an upfront build.
 
 Use `shadcn docs <component>` to get the current API rather than recalling
-props. Use `--dry-run` or `--view` before writing files.
+props. Use `--dry-run`, `--view`, or `--diff` before writing files.
 
 ## Shared pieces come from the kit
 
@@ -76,7 +76,11 @@ from `@/components/theme-provider` in `main.tsx`, or dark mode silently never
 activates (the app renders light no matter the system preference, and
 nothing errors to tell you why).
 
-Lint, TypeScript, and Prettier config come from `@martinrun/frontend-config`.
+Lint, TypeScript, Prettier, and TanStack Query ESLint rules come from `@martinrun/frontend-config`.
+Pre-commit checks run through `lefthook` (replaced Husky + lint-staged — Husky has had
+no release since November 2024).
+All CI pipelines and agent pre-PR validations enforce four checks:
+`pnpm run lint`, `pnpm run format-check`, `tsc --noEmit`, and `pnpm test`.
 
 ## Talking to the backend
 
@@ -100,7 +104,11 @@ Not optional, and not worth debating in review:
 - Every async surface defines loading, empty, and error states.
 - Error text says what happened and what to do next. It does not apologize.
 - Button labels are verbs, consistent through a flow: "Publish" → "Published".
-- Works at 375px wide.
+- Works at 375px wide with zero horizontal scrollbars or modal clipping:
+  - Modals and overlays must use `w-[calc(100vw-2rem)] sm:w-full max-w-lg max-h-[90dvh] overflow-y-auto`.
+  - Dialog footers must use `flex flex-col-reverse sm:flex-row sm:justify-end gap-2` with `className="w-full sm:w-auto"` on buttons for touch targets.
+  - Flex text containers beside fixed items (badges, icons) must have `min-w-0 flex-1` for `truncate` / `break-words`.
+  - Monospace, diff, path, and URL blocks must include `break-all whitespace-pre-wrap` to avoid horizontal overflow.
 
 ## When unsure
 

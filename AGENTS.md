@@ -12,6 +12,14 @@ To change a convention, change it upstream and reinstall:
 pnpm dlx shadcn@latest add MartinCa/frontend-kit/conventions --overwrite
 ```
 
+The conventions skill (`.claude/skills/frontend-conventions/`) and OpenCode
+commands (`.opencode/commands/`) are also vendored from `MartinCa/frontend-kit`;
+refresh with:
+
+```sh
+pnpm dlx shadcn@latest add MartinCa/frontend-kit/agent-skill MartinCa/frontend-kit/opencode-commands --overwrite
+```
+
 The project-specific section at the bottom of `DESIGN.md` is the exception — that
 part is owned by this repo.
 
