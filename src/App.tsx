@@ -5,9 +5,9 @@ import type { components } from "@/lib/api-types";
 import { api } from "@/lib/api";
 import { SourceColumn } from "@/components/SourceColumn";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { LinkButton } from "@/components/link-button";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 
 type SearchResponse = components["schemas"]["SearchResponse"];
 
@@ -83,18 +83,14 @@ export function App() {
             </Button>
 
             {shelfmarkUrl && (
-              <a
-                href={shelfmarkUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn(
-                  buttonVariants({ variant: "outline" }),
-                  "text-primary gap-1.5 font-semibold",
-                )}
+              <LinkButton
+                variant="outline"
+                className="text-primary gap-1.5 font-semibold"
+                render={<a href={shelfmarkUrl} target="_blank" rel="noopener noreferrer" />}
               >
                 <span>Search in Shelfmark</span>
                 <ExternalLink className="size-4" />
-              </a>
+              </LinkButton>
             )}
           </form>
         </div>

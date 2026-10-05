@@ -43,8 +43,9 @@ drop-in replacement for `clsx` + `tailwind-merge`, installed via `npx shadcn mig
 on Tailwind v4 projects; new `shadcn init` scaffolds already use it — the migration
 command is a no-op if the project doesn't already have `clsx`/`tailwind-merge` in
 `lib/utils.ts`, so don't go looking for something to run on a fresh project),
-`class-variance-authority` (these come with shadcn), `sonner` for toasts, `cmdk` for
-command palettes.
+`class-variance-authority` (these come with shadcn), `cmdk` for command palettes. Toasts are
+not a library choice: use the kit's Base UI toast (`MartinCa/frontend-kit/toast`, section 5.1) —
+do not add `sonner`.
 
 Everything else requires a one-line justification in the PR description. Prefer writing
 30 lines over adding a dependency for something small. Prefer a dependency over writing
@@ -184,6 +185,44 @@ not nest dual scrollbars:
 </DialogContent>
 ```
 
+**Navigation items must be links, not `onClick` + `navigate()`.** Base UI's
+`DropdownMenuItem`, `TabsTrigger` and `Button` render a `<div role="menuitem">`, a
+`<button role="tab">` and a `<button>`. Giving one an `onClick`/`onSelect`/`onValueChange` that calls the
+router's `navigate()` works on a plain click and silently loses everything else a link gives
+you: middle-click, Ctrl/Cmd-click, "Open in new tab", "Copy link address", the URL preview on
+hover, and link semantics for screen readers. Nothing errors; it is only ever noticed by someone
+trying to open a second tab. Render the real link instead:
+
+- **A button-looking link:** `LinkButton` (kit item `link-button`). Do not use
+  `<Button nativeButton={false} render={<Link/>}>`: Base UI then adds `role="button"` to the
+  anchor, so it is announced as a button, and Base UI's own docs say links should not be
+  rendered through `Button`. `LinkButton` applies `buttonVariants` to the link itself.
+- **A menu item:** `render` on `DropdownMenuItem`. A menu item is `role="menuitem"` by design
+  and already defaults to non-native, so it needs nothing extra and still closes the menu.
+- **A route tab:** `render` on `TabsTrigger`, plus `nativeButton={false}` because a tab
+  defaults to a native `<button>`.
+
+```tsx
+<LinkButton variant="ghost" render={<Link to="/library" />}>Back to Library</LinkButton>
+
+<DropdownMenuItem render={<Link to="/settings/library" />}>Library settings</DropdownMenuItem>
+
+<TabsTrigger value="series" nativeButton={false} render={<Link to="/library/series" />}>
+  Series
+</TabsTrigger>
+```
+
+`navigate()` is still right when there is no link to render: a redirect after a mutation, a
+search-on-Enter handler, history-style `navigate(-1)`, or writing URL state with `replace: true`.
+The shared ESLint preset flags the clear-cut case, an inline `onClick`/`onSelect`/`onValueChange`
+arrow whose only job is `navigate(...)` or `router.navigate(...)`, and exempts a literal
+`replace: true` (in a top-level options object) and numeric (history) calls. A non-literal
+`replace: someVar` is flagged, so disable that line with a reason. It cannot see handlers passed by reference or ones that do other work
+too, and a `.navigate()` call on anything not named `router` is never matched. If it flags a call
+that really has no link to render, disable that line with a reason.
+(Base UI also ships `Menu.LinkItem`, but it defaults `closeOnClick` to `false` and the vendored
+`dropdown-menu.tsx` does not export it; `DropdownMenuItem` + `render` avoids both.)
+
 **Other overlay components (`sheet.tsx`, `popover.tsx`, `dropdown-menu.tsx`):**
 - **`sheet.tsx` (`SheetContent`)**: Ensure tall content has `overflow-y-auto` and viewport-safe
   bounds (`max-h-[100dvh]`) so actions remain reachable on mobile.
@@ -241,6 +280,59 @@ src/
   - **Flex child text truncation**: In flex rows where text sits alongside fixed-width elements (badges, buttons, icons), the text container must have `min-w-0 flex-1` for `truncate` or `break-words` to take effect and prevent horizontal scrollbars.
   - **Monospace & diff blocks**: Components displaying arbitrary paths, URLs, commit hashes, or code/diff blocks must include `break-all` alongside `whitespace-pre-wrap` (or an explicit `overflow-x-auto` container) so unbroken strings wrap cleanly on narrow screens.
 
+### 5.1 Notifications and async action buttons
+
+**Toasts.** Install `MartinCa/frontend-kit/toast` (a Base UI toast wrapper plus a
+`notifications` helper), mount `<Toaster />` once at the app root, and call
+`notifications.success | error | info | warning(title, options)` from anywhere. Never import a
+toast library directly.
+
+- `description` adds a secondary line, e.g. the server's error detail.
+- Errors default to a 10 s timeout so they can be read; other types use the manager default.
+- `{ timeout: ms }` overrides the delay; `{ persistent: true }` keeps the toast until it is
+  dismissed (use it for failures the user must act on).
+- Result *text* belongs in a toast, never inline next to a control — inline text blows out
+  table cells and mobile layouts.
+
+**Async action buttons.** For an action with a visible outcome (grab, retry, sync, send), use
+`MartinCa/frontend-kit/action-button`:
+
+```tsx
+const { status, run } = useAsyncAction(grab);
+
+<ActionButton
+  icon={HardDriveDownloadIcon}
+  label="Send to download client"
+  resultLabel={status === "success" ? "Sent" : "Failed"}
+  status={status}
+  onClick={async () => {
+    const outcome = await run(id);
+    if (outcome.ok) notifications.success("Sent to the download client");
+    else notifications.error("Grab failed", { description: String(outcome.error) });
+  }}
+/>;
+```
+
+- States: idle shows the icon; pending swaps in a spinner (same size, no layout shift) and
+  disables the button; success / error tint the **same icon** with `text-status-ok` /
+  `text-status-error`. The tint stays until the next click or until the button unmounts —
+  navigating away or changing context resets it. Nothing is persisted.
+- Icon-only is the default (row actions, tables). For a primary action that has room for a
+  verb, pass children as visible text: `<ActionButton icon={EyeOffIcon} status={status}
+  onClick={...}>Ignore</ActionButton>`. The size defaults to `sm`, the icon still carries the
+  spinner and result tint, and the visible text is the accessible name (`label` becomes an
+  optional tooltip). Icon-only requires `label`. Children must be real content: `false`, `null`
+  and `""` are not text (the first two are a type error, an empty string falls back to icon-only).
+- Colour is never the only signal: report the outcome in a toast. In icon-only mode also pass
+  `resultLabel` so the accessible name and tooltip change; in text mode the visible text stays
+  the accessible name, so `resultLabel` only updates the tooltip and the toast carries the result.
+- When the status comes from elsewhere (a mutation plus a polled job), derive an
+  `ActionStatus` (`"idle" | "pending" | "success" | "error"`) and pass it to `<ActionButton>`
+  directly; `useAsyncAction` is only for plain promises. The two parts are deliberately
+  independent so polling stays in the app.
+- Secondary actions on the same row (download link, clear, delete) go in an overflow menu so
+  the primary action keeps its column narrow on a phone.
+
 ---
 
 ## 6. Quality floor
@@ -250,7 +342,10 @@ Non-negotiable, and not worth discussing in review because it is written here:
 - Keyboard reachable, with a visible focus ring. Never remove the outline without a
   replacement.
 - Real semantics: `<button>` for actions, `<a>` for navigation, labelled inputs. A `<div>`
-  with an `onClick` is a defect.
+  with an `onClick` is a defect, and so is a button, menu item or tab whose click, select or
+  value-change handler just calls `navigate()`: if it goes to a URL it must render as a link
+  (`LinkButton`, or `render={<Link/>}` — see section 3), or middle-click and "Open in new tab" stop
+  working.
 - `prefers-reduced-motion` respected.
 - Every async surface has three defined states: loading (skeleton, not a spinner-only
   screen), empty (with an action to take), and error (what failed and what to do next).
