@@ -108,4 +108,26 @@ describe("App search results", () => {
       expect(screen.queryByText("The Hobbit")).not.toBeInTheDocument();
     });
   });
+
+  it("renders the Shelfmark handoff as a real link", async () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const getMock = api.get as unknown as GetSearchMock;
+    getMock.mockResolvedValue({
+      ...makeResponse("found", ["The Hobbit"]),
+      shelfmark_url: "https://shelfmark.example.com/?q=found",
+    });
+
+    renderApp(queryClient);
+
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "found" } });
+    fireEvent.submit(screen.getByRole("search"));
+
+    const link = await screen.findByRole("link", { name: /Search in Shelfmark/ });
+    expect(link.tagName).toBe("A");
+    expect(link).toHaveAttribute("href", "https://shelfmark.example.com/?q=found");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
 });
