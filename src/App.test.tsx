@@ -128,5 +128,6 @@ describe("App search results", () => {
     expect(link.tagName).toBe("A");
     expect(link).toHaveAttribute("href", "https://shelfmark.example.com/?q=found");
     expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
   });
 });
