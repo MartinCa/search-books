@@ -25,7 +25,15 @@ skill is the fallback and the summary; the file is the contract.
 - TanStack Query for anything from a server. Zustand only for cross-cutting
   client state. `useState` for everything else.
 - react-hook-form + zod for forms. TanStack Table for tables. date-fns for dates.
-- lucide-react for icons, sonner for toasts.
+- lucide-react for icons. Toasts via the kit's `toast` item (`notifications.*`), never `sonner`.
+- Async actions with a visible outcome use `ActionButton` (icon, or icon + text when given children; spinner + tinted result) with the
+  result text in a toast — see DESIGN.md section 5.1.
+
+- Anything that goes to a URL is a link. Use `LinkButton` (`link-button` item, never
+  `<Button nativeButton={false} render={<Link/>}>`, which adds `role="button"`) or `render={<Link/>}`
+  on menu items (and tabs, with `nativeButton={false}`) — never an
+  `onClick`/`onSelect`/`onValueChange` that calls `navigate()`, which breaks middle-click and "Open
+  in new tab". See DESIGN.md section 3.
 
 Do not introduce a library outside this list without asking first.
 
@@ -69,6 +77,7 @@ pnpm dlx shadcn@latest add MartinCa/frontend-kit/api-client    # typed fetch + A
 pnpm dlx shadcn@latest add MartinCa/frontend-kit/query-setup   # QueryClient defaults
 pnpm dlx shadcn@latest add MartinCa/frontend-kit/theme         # theme tokens
 pnpm dlx shadcn@latest add MartinCa/frontend-kit/theme-provider # theme provider & dark mode support
+pnpm dlx shadcn@latest add MartinCa/frontend-kit/link-button   # Button that renders as a real link
 ```
 
 `theme-provider` does nothing on its own — wrap the app in `<ThemeProvider>`
@@ -99,7 +108,8 @@ Backends vary (ASP.NET Core, FastAPI, Flask). The contract does not:
 Not optional, and not worth debating in review:
 
 - Keyboard reachable with a visible focus ring.
-- Real semantics. A `<div onClick>` is a defect.
+- Real semantics. A `<div onClick>` is a defect; so is a button, menu item or tab whose handler
+  only calls `navigate()` — render a link instead.
 - `prefers-reduced-motion` respected.
 - Every async surface defines loading, empty, and error states.
 - Error text says what happened and what to do next. It does not apologize.
