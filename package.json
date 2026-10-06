@@ -15,7 +15,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@12.8.2",
+  "packageManager": "pnpm@12.9.0",
   "type": "module",
   "devDependencies": {
     "@martinrun/frontend-config": "0.3.5",
