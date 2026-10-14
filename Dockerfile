@@ -1,6 +1,6 @@
 ARG NODE_IMAGE=node:24-slim@sha256:d6aa754f16b3197301076f047b5def2f02ea1dbbc2ca920407d46d7ec7f87b20
-ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.1-python3.14-trixie-slim@sha256:112f89760bd54b63c84d140151ea5f3d849278e54f6f939f2c40a57f3e33d895
-ARG RUNTIME_IMAGE=python:3.14.8-slim-trixie@sha256:a2b82f3c48559aa0a8446d9af49826b6e2b2016f4cd2afabfe6013ec53729170
+ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.1-python3.15-trixie-slim@sha256:0b0de4f8931fd2f61fb7708b1326e50838767c8f9e7ced92fcf72ec60ae6c457
+ARG RUNTIME_IMAGE=python:3.15.0-slim-trixie@sha256:ea4f1f290e071bf7d28199cfb3e09f5dbad31b50e9c32fd58f2f2d7be915f3ae
 
 FROM ${NODE_IMAGE} AS frontend-builder
 ENV PNPM_HOME="/pnpm"

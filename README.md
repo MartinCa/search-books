@@ -118,7 +118,7 @@ failed is reported inline, so **one dead backend never blanks the other**:
 
 ## Development
 
-Requires [uv](https://docs.astral.sh/uv/) and Python 3.14.
+Requires [uv](https://docs.astral.sh/uv/) and Python 3.15.
 
 ```bash
 uv sync --all-groups
