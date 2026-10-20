@@ -1,5 +1,5 @@
 ARG NODE_IMAGE=node:24-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1bdf74566a0ebe01daee5
-ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.1-python3.15-trixie-slim@sha256:0b0de4f8931fd2f61fb7708b1326e50838767c8f9e7ced92fcf72ec60ae6c457
+ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.3-python3.15-trixie-slim@sha256:3a89179d827d02d43a9e5af33f56c6173fb2e91acf8d616910473eb64864100a
 ARG RUNTIME_IMAGE=python:3.15.0-slim-trixie@sha256:ea4f1f290e071bf7d28199cfb3e09f5dbad31b50e9c32fd58f2f2d7be915f3ae
 
 FROM ${NODE_IMAGE} AS frontend-builder
