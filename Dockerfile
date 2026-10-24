@@ -2,7 +2,7 @@ ARG NODE_IMAGE=node:24-slim@sha256:a5f4366e834695d5f363b920c104953a535d3a9864d1b
 # The Python builder reuses the runtime image so the virtualenv copied between stages
 # always matches its interpreter; uv itself is copied in as a standalone binary.
 ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.5@sha256:32a7bb39b496babbd997b0a39a4d66c126bdaf5661b302bf6f06abda8deca6ff
-ARG RUNTIME_IMAGE=python:3.15.0-slim-trixie@sha256:2da676046630d7bf14c6764ae1143dc7fa0377a53f94bf5a642f0b214aca5bce
+ARG RUNTIME_IMAGE=python:3.15.0-slim-trixie@sha256:f5b92f2a669a4c347044f29367f31983280b648250ca94dea66f98c53bc87e58
 
 FROM ${NODE_IMAGE} AS frontend-builder
 ENV PNPM_HOME="/pnpm"
