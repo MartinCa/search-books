@@ -1,4 +1,4 @@
-ARG NODE_IMAGE=docker.io/library/node:24-slim@sha256:c86ecead9e55a5210ac1727de38a4ca840bf03dcaf34dc9749addbf383b1920c
+ARG NODE_IMAGE=docker.io/library/node:26-slim@sha256:e4db4c914bf8ad241bd24804fc25d272d89bad97e68cdc8a1414862790a02c39
 # The Python builder reuses the runtime image so the virtualenv copied between stages
 # always matches its interpreter; uv itself is copied in as a standalone binary.
 ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.6@sha256:af22a52f5eafef3d78e551599d405c02df61919d18028f0cea8eda93bc9986d0
@@ -7,10 +7,13 @@ ARG RUNTIME_IMAGE=docker.io/library/python:3.15.2-slim-trixie@sha256:c4158543ecb
 FROM ${NODE_IMAGE} AS frontend-builder
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+
+# Node 26 no longer bundles Corepack, so install the pnpm release pinned in
+# package.json's `packageManager` field directly.
+RUN npm install --global "pnpm@$(node -p "require('./package.json').packageManager.split('@')[1].split('+')[0]")"
+
 # --ignore-scripts: this stage only needs the packages on disk to run `pnpm
 # build` below, never a package's own install script. Without it, lefthook's
 # `prepare` script (`lefthook install`) shells out to `git rev-parse` to find
