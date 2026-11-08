@@ -1,4 +1,4 @@
-ARG NODE_IMAGE=docker.io/library/node:26-slim@sha256:e4db4c914bf8ad241bd24804fc25d272d89bad97e68cdc8a1414862790a02c39
+ARG NODE_IMAGE=docker.io/library/node:26-slim@sha256:5adad64f9a1fca2d51972caa65983634c8a774eb300d72b20f7f2a0f60368072
 # The Python builder reuses the runtime image so the virtualenv copied between stages
 # always matches its interpreter; uv itself is copied in as a standalone binary.
 ARG UV_IMAGE=ghcr.io/astral-sh/uv:0.13.7@sha256:96f40d3904aad8d0bd010539001d36c8e2188b981e1334471a90c4a1d93bb490
